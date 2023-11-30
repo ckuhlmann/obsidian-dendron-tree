@@ -4,7 +4,10 @@ on:
   push:
     tags:
       - "*"
-
+  release:
+    types: [created, edited]
+  workflow_dispatch: # Put here!!
+  
 jobs:
   build:
     permissions:
