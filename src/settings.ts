@@ -12,6 +12,8 @@ export interface DendronTreePluginSettings {
   autoGenerateFrontmatter: boolean;
   autoReveal: boolean;
   customResolver: boolean;
+  customGraph: boolean;
+  deleteMethod: string;
 }
 
 export const DEFAULT_SETTINGS: DendronTreePluginSettings = {
@@ -24,6 +26,8 @@ export const DEFAULT_SETTINGS: DendronTreePluginSettings = {
   autoGenerateFrontmatter: true,
   autoReveal: true,
   customResolver: false,
+  customGraph: false,
+  deleteMethod: "moveToTrash",
 };
 
 export class DendronTreeSettingTab extends PluginSettingTab {
@@ -40,6 +44,20 @@ export class DendronTreeSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     containerEl.createEl("h2", { text: "Dendron Tree Settting" });
+    
+    new Setting(containerEl)
+    .setName("Deletion Method")
+    .setDesc(
+      "What happens when you delete a file"
+    )
+    .addDropdown(dropdown => dropdown
+      .addOption('moveToTrash', 'Move to Trash')
+      .addOption('deletePermanently', 'Delete Permanently')
+      .setValue(this.plugin.settings.deleteMethod || 'moveToTrash')
+      .onChange(async (value) => {
+        this.plugin.settings.deleteMethod = value;
+        await this.plugin.saveSettings();
+      }));
 
     new Setting(containerEl)
       .setName("Auto Generate Front Matter")
@@ -69,6 +87,16 @@ export class DendronTreeSettingTab extends PluginSettingTab {
       .addToggle((toggle) => {
         toggle.setValue(this.plugin.settings.customResolver).onChange(async (value) => {
           this.plugin.settings.customResolver = value;
+          await this.plugin.saveSettings();
+        });
+      });
+
+    new Setting(containerEl)
+      .setName("Custom Graph Engine")
+      .setDesc("Use custom graph engine to render graph (Experimental)")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.settings.customGraph).onChange(async (value) => {
+          this.plugin.settings.customGraph = value;
           await this.plugin.saveSettings();
         });
       });
@@ -111,5 +139,6 @@ export class DendronTreeSettingTab extends PluginSettingTab {
     super.hide();
     this.plugin.onRootFolderChanged();
     this.plugin.configureCustomResolver();
+    this.plugin.configureCustomGraph();
   }
 }

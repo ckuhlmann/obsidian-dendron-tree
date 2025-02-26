@@ -81,4 +81,61 @@ declare module "obsidian" {
   interface Editor {
     getClickableTokenAt?: (pos: EditorPosition) => ClickableToken | undefined;
   }
+
+  interface GraphNode {
+    getDisplayText(): string;
+    id: string;
+  }
+
+  interface GraphEngine {
+    render(): number;
+    hasFilter: boolean;
+    fileFilter: Record<string, boolean>;
+    options: {
+      showAttachments: boolean;
+      showOrphans: true;
+      hideUnresolved: boolean;
+      localFile: string;
+      localBacklinks: boolean;
+      localForelinks: boolean;
+      localInterlinks: boolean;
+      localJumps: number;
+    };
+    progression: number;
+    searchQueries: any[] | undefined;
+    renderer: GraphRenderer;
+    view: GraphView | LocalGraphView;
+  }
+
+  interface GraphNodeData {
+    links: Record<string, boolean>;
+    type: string;
+  }
+
+  interface AbstractGraphData {
+    nodes: Record<string, GraphNodeData>;
+  }
+
+  interface GraphData extends AbstractGraphData {
+    numLinks: number;
+  }
+
+  interface LocalGraphData extends AbstractGraphData {
+    weights: Record<string, number>;
+  }
+
+  interface GraphRenderer {
+    setData(data: GraphData | LocalGraphData);
+    nodes: GraphNode[];
+  }
+
+  interface LocalGraphView extends View {
+    engine: GraphEngine;
+    renderer: GraphRenderer;
+  }
+
+  interface GraphView extends View {
+    dataEngine: GraphEngine;
+    renderer: GraphRenderer;
+  }
 }
